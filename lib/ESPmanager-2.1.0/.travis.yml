@@ -1,0 +1,27 @@
+language: python
+python:
+- '2.7'
+sudo: false
+cache:
+  directories:
+  - ~/.platformio
+addons:
+  apt:
+    packages:
+    - tree
+env:
+  matrix:
+  - PLATFORMIO_CI_SRC="$TRAVIS_BUILD_DIR/examples/ESPmanager-example/ESPmanager-example.ino" 
+  - PLATFORMIO_CI_SRC="$TRAVIS_BUILD_DIR/examples/ESPmanager-example/ESPmanager-example.ino" PLATFORMIO_BUILD_FLAGS="-D Debug_ESPManager=Serial"
+install:
+  - pip install -U platformio
+ # finsih sdk updates 
+  - cd $TRAVIS_BUILD_DIR
+  # - echo "10606" > ~/.platformio/packages/framework-arduinoespressif/version.txt
+  - mkdir /tmp/build
+  - platformio lib -g install "ESPAsyncTCP" "ESPAsyncWebServer" "ArduinoJson"
+
+script:
+  - platformio ci --board="esp12e" --build-dir="/tmp/build" 
+    --lib="$TRAVIS_BUILD_DIR" 
+
