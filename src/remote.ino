@@ -29,20 +29,27 @@ void setup() {
 	Serial.println("");
 	Serial.println(F("ESPRemote started"));
 
-	Serial.printf("Sketch size: %u\n", ESP.getSketchSize());
-	Serial.printf("Free size: %u\n", ESP.getFreeSketchSpace());
-
-	settings.begin();
-
 	// Setup GPIO
 	pinMode(UP_PIN, OUTPUT);
 	pinMode(DOWN_PIN, OUTPUT);
 
+	// Flash light
+	pinMode(LED_BUILTIN, OUTPUT);
+	for (int i = 0; i < 5; i++) {
+		digitalWrite(LED_BUILTIN, HIGH);
+		delay(100);
+		digitalWrite(LED_BUILTIN, LOW);
+		delay(100);
+	}
+
+	settings.begin();
+	settings.disablePortal();
+
 	// This rewrite is active when the captive portal is working, and redirects the root / to the setup wizard. 
 	// This has to go in the main sketch to allow your project to control the root when using ESPManager. 
-	server.rewrite("/", "/espman/setup.htm").setFilter([](AsyncWebServerRequest *request) {
-		return settings.portal();
-	});
+	// server.rewrite("/", "/espman/setup.htm").setFilter([](AsyncWebServerRequest *request) {
+	// 	return settings.portal();
+	// });
 
 	// Then use this rewrite and serve static to serve your index file(s)
 	server.rewrite("/", "/index.htm");
@@ -63,17 +70,6 @@ void setup() {
 	server.on("/status", HTTP_GET, sendStatus);
 
 	server.begin();
-
-	// Flash light
-	pinMode(LED_BUILTIN, OUTPUT);
-	for (int i = 0; i < 5; i++) {
-		digitalWrite(LED_BUILTIN, LOW);
-		delay(200);
-		digitalWrite(LED_BUILTIN, HIGH);
-	}
-
-	Serial.print(F("Free Heap: "));
-	Serial.println(ESP.getFreeHeap());
 }
 
 void loop() {
