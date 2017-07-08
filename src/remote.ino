@@ -16,6 +16,8 @@ const uint8_t UP_PIN = D1;
 const uint8_t DOWN_PIN = D2;
 const uint8_t LED = 2;
 const unsigned long PUSH_TIME = 100;
+const uint8_t BUTTON_ON = LOW;
+const uint8_t BUTTON_OFF = HIGH;
 const char *STATUS_UNKNOWN = "unknown";
 
 AsyncWebServer server(80);
@@ -36,9 +38,9 @@ void setup() {
 
 	// Setup
 	pinMode(UP_PIN, OUTPUT);
-	digitalWrite(UP_PIN, LOW);
+	digitalWrite(UP_PIN, BUTTON_OFF);
 	pinMode(DOWN_PIN, OUTPUT);
-	digitalWrite(DOWN_PIN, LOW);
+	digitalWrite(DOWN_PIN, BUTTON_OFF);
 	timer.setInterval(PUSH_TIME);
 	timer.setCallback(timerCallback);
 
@@ -104,14 +106,14 @@ void sendStatus(AsyncWebServerRequest *request) {
 
 void activateSwitch(uint8_t pin) {
 	// Serial.println(F("activate"));
-	digitalWrite(pin, HIGH);
+	digitalWrite(pin, BUTTON_ON);
 	// delay(PUSH_TIME);
-	// digitalWrite(pin, LOW);
+	// digitalWrite(pin, BUTTON_OFF);
 	timer.start();	
 }
 
 void timerCallback() {
 	// Serial.println(F("deactivate"));
-	digitalWrite(UP_PIN, LOW);
-	digitalWrite(DOWN_PIN, LOW);
+	digitalWrite(UP_PIN, BUTTON_OFF);
+	digitalWrite(DOWN_PIN, BUTTON_OFF);
 }
