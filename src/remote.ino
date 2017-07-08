@@ -10,17 +10,22 @@
 #include <Hash.h>
 #include <ESP8266mDNS.h>
 #include <ESPmanager.h>
+#include <Ticker.h>
 
-const uint8_t UP_PIN = 1;
-const uint8_t DOWN_PIN = 2;
+const uint8_t UP_PIN = D1;
+const uint8_t DOWN_PIN = D2;
+const uint8_t LED = 2;
+const unsigned long PUSH_TIME = 100;
 const char *STATUS_UNKNOWN = "unknown";
 
 AsyncWebServer server(80);
 ESPmanager settings(server, SPIFFS);
 const char *status = STATUS_UNKNOWN;
+Ticker timer;
 
 void sendStatus(AsyncWebServerRequest *request);
 void activateSwitch(uint8_t pin);
+void timerCallback();
 
 void setup() {
 	Serial.begin(115200);
@@ -29,16 +34,20 @@ void setup() {
 	Serial.println("");
 	Serial.println(F("ESPRemote started"));
 
-	// Setup GPIO
+	// Setup
 	pinMode(UP_PIN, OUTPUT);
+	digitalWrite(UP_PIN, LOW);
 	pinMode(DOWN_PIN, OUTPUT);
+	digitalWrite(DOWN_PIN, LOW);
+	timer.setInterval(PUSH_TIME);
+	timer.setCallback(timerCallback);
 
 	// Flash light
-	pinMode(LED_BUILTIN, OUTPUT);
+	pinMode(LED, OUTPUT);
 	for (int i = 0; i < 5; i++) {
-		digitalWrite(LED_BUILTIN, HIGH);
+		digitalWrite(LED, HIGH);
 		delay(100);
-		digitalWrite(LED_BUILTIN, LOW);
+		digitalWrite(LED, LOW);
 		delay(100);
 	}
 
@@ -50,6 +59,9 @@ void setup() {
 	// server.rewrite("/", "/espman/setup.htm").setFilter([](AsyncWebServerRequest *request) {
 	// 	return settings.portal();
 	// });
+
+	// Shortcut
+	server.rewrite("/setup", "/espman/setup.htm");
 
 	// Then use this rewrite and serve static to serve your index file(s)
 	server.rewrite("/", "/index.htm");
@@ -70,10 +82,12 @@ void setup() {
 	server.on("/status", HTTP_GET, sendStatus);
 
 	server.begin();
+	digitalWrite(LED, HIGH);
 }
 
 void loop() {
 	settings.handle();
+	timer.update();
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +103,15 @@ void sendStatus(AsyncWebServerRequest *request) {
 }
 
 void activateSwitch(uint8_t pin) {
+	// Serial.println(F("activate"));
 	digitalWrite(pin, HIGH);
-	delay(100);
-	digitalWrite(pin, LOW);
+	// delay(PUSH_TIME);
+	// digitalWrite(pin, LOW);
+	timer.start();	
+}
+
+void timerCallback() {
+	// Serial.println(F("deactivate"));
+	digitalWrite(UP_PIN, LOW);
+	digitalWrite(DOWN_PIN, LOW);
 }
