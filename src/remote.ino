@@ -15,7 +15,7 @@
 const uint8_t UP_PIN = D1;
 const uint8_t DOWN_PIN = D2;
 const uint8_t LED = 2;
-const unsigned long PUSH_TIME = 100;
+const unsigned long PUSH_TIME = 200;
 const uint8_t BUTTON_ON = LOW;
 const uint8_t BUTTON_OFF = HIGH;
 const char *STATUS_UNKNOWN = "unknown";
@@ -106,6 +106,7 @@ void sendStatus(AsyncWebServerRequest *request) {
 
 void activateSwitch(uint8_t pin) {
 	// Serial.println(F("activate"));
+	digitalWrite(LED, LOW);
 	digitalWrite(pin, BUTTON_ON);
 	// delay(PUSH_TIME);
 	// digitalWrite(pin, BUTTON_OFF);
@@ -116,4 +117,5 @@ void timerCallback() {
 	// Serial.println(F("deactivate"));
 	digitalWrite(UP_PIN, BUTTON_OFF);
 	digitalWrite(DOWN_PIN, BUTTON_OFF);
+	digitalWrite(LED, HIGH);
 }
