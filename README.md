@@ -1,4 +1,4 @@
-# esp8266-remote
+# :dash: esp8266-remote
 
 > Simple esp8266 web/API remote control
 
